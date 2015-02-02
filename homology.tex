@@ -1,0 +1,430 @@
+\section{Computational Anatomical
+Homology}\label{computational-anatomical-homology}
+
+\section{Abstract}\label{abstract}
+
+\section{Background}\label{background}
+
+Homology was originally defined as ``the same organ in different animals
+under every variety of form and function''\cite{Owen1843}. With the
+advent of molecular biology, the concept of homology came to cover the
+sequences of genes and proteins. Fitch introduced subtypes such as
+paralogy and orthology, and provided rules for calculating membership in
+these categories based relationships on gene and protein
+trees\cite{Fitch1970}. This formulation forms a crucial bedrock in the
+field of bioinformatics. In contrast, the application of the homology
+concept in its original usage in the study of anatomy has retained more
+of a philosophical flavor.
+
+Here we provide a formulation of anatomical homology that can be applied
+in modern bioinformatics information systems, used to answer questions
+about the relationships between genes, anatomical structures and their
+histories. Our formulation is expressed using the Web Ontology Language
+(OWL), so we first provide prelininary information on this language.
+
+Our effort builds on and contrasts with previous efforts, such as the
+Vertebrate Bridging Ontology (VBO) which catalogued a set of anatomical
+structures from a number of vertebrates, together with homology
+relationships connecting them. We also build on our previous efforts, on
+constructing resources such as the Vertebrate Homologous Organ Group
+(VHOG) ontology\cite{Bgee} and the Vertebrate Skeletal Anatomy Ontology
+(VSAO)\cite{Dahdul}, both of which have been merged into the Uberon
+metazoan anatomy ontology\cite{Mungall2012},\cite{Haendel2014}.
+
+\subsection{Ontologies and Computational
+Logic}\label{ontologies-and-computational-logic}
+
+Ontologies are symbolic representations of some aspect of the world that
+can be used by both humans and by machines. Ontologies are commonly
+conceived of as semantic networks\cite{}, with nodes representing terms
+from the domain of discourse (for example, ``limb'', ``bone'', ``skull''
+and so in anatomy) and the edges forming relationships that hold between
+the correspoding entities (for example, femur partOf hindlimb).
+
+There are a variety of languages used for expressing an ontology model,
+and these languages fall into different families, each with
+characteristics that have impacts on how the ontology is developed and
+applied. Three languages of note are Resource Description Framework
+(RDF), the Web Ontology Language (OWL) and Common Logic (CL). Of these
+3, CL is the most expressive, covering all of First Order Logic (FOL)
+(with some aspects of second-order). Any RDF or OWL ontology can be
+represented in CL. Formally, OWL is a more expressive subset of RDF
+(every OWL ontology is an RDF ontology, but OWL defines constructs with
+greater expressive power).
+
+The language that is of most relevance here is OWL, as this is what is
+currently used for the majority of ontologies in the field of biology
+(many biological ontologies are authored using a format called OBO,
+which is officially an OWL syntax). One of the features of OWL that is
+most salient to the problem of homology is its strict partitioning of
+elements into disjoint categories, the three core ones being
+\emph{classes}, \emph{individuals} and
+\emph{relations}\footnote{in OWL terminology,
+an Object Property}.
+
+When settling down to model some aspect of the world in OWL, it is
+necessary for the modeler to decide what to put in each of these boxes.
+The choice may be dictated by philosophical consideration, but pragmatic
+aspects dictated by mathematical-logical properties of these sets
+usually dominate. The most common approach (although by no means
+universal) is model ``particulars'' as individuals - this may include
+your friend \texttt{Joe} or his dog \texttt{Fido}. Joe may be related to
+Fido via the \texttt{owns} relation. Classes are essentially sets of
+individuals, so we may choose to include classes for \texttt{human} and
+for \texttt{dog}, with Joe and Fido instantiating these classes
+respectively. It is valid, if unusual, to model species or taxa as
+individuals. Note there is a longstanding question in the philosophy of
+biology concerning whether species are classes or individuals.
+
+Crucially for our purposes here, the only relationships that can hold
+between classes are set-theoretic ones. For example, \texttt{human} and
+\texttt{dog} may both be subclasses of the class \texttt{mammal}
+(i.e.~the set of humans is a subset of the set of mammals).
+\texttt{human} and \texttt{dog} may stand in a disjointness relationship
+(i.e.~their set intersection is empty).
+
+A vertebrate anatomical ontology will typically include classes such as
+\texttt{digit}, \texttt{phalanx}, as well as more specific classes such
+as \texttt{phalanx of hand} or even
+\texttt{distal phalanx of digit 2 of left hand}. Within this model,
+these classes instantiated by particulars in the world; for example,
+Joe's left thumb, which instantiates the class \texttt{manual digit 1}
+as well as more general classes such as \texttt{digit} and more specific
+classes such as \texttt{human left manual digit 1}.
+
+Ontologies are chiefly concerned with generalizations, such as the fact
+that digits are always part of the autopod (hand or foot). This can be
+done using the mereological partOf relation, but in OWL relations always
+hold between individuals, such as Joe's left manual digit 1 and Joe's
+left hand. There is no physical, mereological relation between the
+classes, which are abstractions over the individual elements. The actual
+relationship between the classes is a set-theoretic one, which can be
+stated in normal set-theoretic notation as:
+
+\begin{verbatim}
+digit ⊆ { x : ∃ y : y ∈ autopod & partOf(x,y) }
+\end{verbatim}
+
+i.e.~the \texttt{digit} set is a subset of the set of all things whose
+members $x$ stand in a partOf relaitonship to some $y$ where y is an
+autopod.
+
+OWL is at its core a notation for these kinds of set-builder
+expressions. The above set notation can be written in the Manchester
+Syntax\cite{Horridge} variant of OWL as:
+
+\begin{verbatim}
+Class: digit SubClassOf: partOf some autopod
+\end{verbatim}
+
+A more compact (if abstruse) way of writing the same thing is in DL
+notation:
+
+\begin{verbatim}
+digit ⊆  ∃partOf.autopod
+\end{verbatim}
+
+An understanding of the distinction between statements about classes
+versus statements about individuals in OWL is of paramount importance to
+understanding the implications of modeling a homologousTo relationship,
+at the core of this paper.
+
+\subsection{Existing work}\label{existing-work}
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  VBO
+\item
+  HOM
+\item
+  UBERON
+\item
+  Franz et al
+\end{itemize}
+
+\subsubsection{Uberon}\label{uberon}
+
+Uberon contains classes for anatomical structures found in a variety of
+animals, with an emphasis towards vertebrates. Classes in Uberon
+represent groupings of structures; for example, the class \texttt{limb}
+groups all tetrapod limbs, and the class \texttt{mammary gland} groups
+all mammary glands (which are exclusive to mammals).
+
+In the past we have characterized Uberon as ``homology neutral''. By
+this we mean that there is no \emph{guarantee} that the existence of a
+class in Uberon means that the class represents a group of homologous
+structures; it does not mean that homology is explicitly avoided as a
+grouping criteria. Homology is handled separately, in datafiles provided
+by groups such as Phenoscape and BgeeDb. In practice, a strict
+separation is difficult, and often it is impossible to avoid homology -
+for example, the definition of ``manual digit 3'' is essentially
+homological.
+
+\section{Results}\label{results}
+
+\subsection{Competency Questions and Evaluation
+Strategy}\label{competency-questions-and-evaluation-strategy}
+
+Here we elcudiate a number of different homology models and evaluate
+their characteristics. We characterize two broad categories of
+competency query for the purposes of evaluation.
+
+We call the first category \texttt{anatomy queries} are queries whose
+answers are anatomical structures; examples are:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  what, if any, are the homologs of tetrapod digits in fish?
+\item
+  what is the evolutionary ancestor of tetrapod limbs and
+  actinopterygian fins?
+\item
+  what structures are in the ontogenic lineage of both limbs and fins?
+\end{itemize}
+
+The second category are \texttt{data queries}, as they can be
+characterized by the fact that anatomical relationships are used as a
+means of enhancing a query about some data that has been indexed using
+the ontology. We use genes as our paradigmatic data entities. Examples:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  what vertebrate genes are expressed in either the human forelimb, or
+  any homolog thereof?
+\item
+  to what extent are genes expressed in two homologous structures
+  themselves homologs?
+\item
+  what zebrafish genes have similar anatomical phenotypes to human
+  Hoxd13?
+\end{itemize}
+
+\subsection{Basic Homology Relation
+Properties}\label{basic-homology-relation-properties}
+
+Our approach is not to take the homology relation as primitive, but
+instead to define it in terms of descent. This approach is compatible
+with a broad range of existing treatments, and is in particular highly
+compatible with the Fitchean formulation of sequence homology.
+
+We first introduce a relation \texttt{descendedFrom}, which captures the
+phylogenetic lineage between an entity and its antecedent. At this stage
+we leave open the question of what kind of thing this relation connects,
+i.e.~we do not yet commit to an information flow model\cite{Van Valen}
+vs connecting physical structures.
+
+This relation has the following characteristics:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Transitivity
+\item
+  Reflexivity
+\item
+  Anti-symmetry
+\end{itemize}
+
+The reflexivity characteristic means everything is descendedFrom itself;
+this makes aspects of the formulation easier, and we can follow
+analogous practice in mereology and introduce an irreflexive
+\texttt{properlyDescendedFrom} if required. Similary for transitivity;
+we can later introduce a \texttt{directlyDescendedFrom} (for example,
+between a child structure and the antecedent structure in the direct
+biological parent).
+
+We use this relation to partially define \texttt{homologousTo}, using an
+OWL property chain axiom:
+
+\begin{verbatim}
+homologousTo <- descendedFrom o inverse(descendedFrom)
+\end{verbatim}
+
+Which is shorthand for the following rule:
+
+\begin{verbatim}
+IF x descendedFrom a AND
+   y descendedFrom a
+THEN x homologousTo y
+\end{verbatim}
+
+It follows from this definition that homology is itself transitive and
+reflexive. It also follows that homology is symmetric (see supplemental
+proofs).
+
+We assume this part of the formulation is rigid. From here there are
+certain decision points, specifically with respect to what kinds of
+things can be related using these relations. There are also further
+distinctions to be made between interspecies (phyletic) homology and
+serial homology (or between parology and orthology for sequences); we
+will return to these distinctions later.
+
+TODO: homologousAs
+
+\subsection{Model Decision Tree}\label{model-decision-tree}
+
+The first modeling question that needs to be answered is whether
+generalized anatomical structures such as \texttt{digit} or
+\texttt{hand digit 1} are to be modeled as classes or individuals. If
+the answer is ``classes'', then the model is a \emph{TBox} model, and if
+the answer is ``individuals'' then the model is an \emph{ABox} model.
+
+As mentioned previously, the conventional approach is to admit only
+spatiotemporal particulars such as ``Joe's left thumb'' to be
+individuals, with all generalizations being classes. We will therefore
+start with homology models that conform to this practice. Subsequently
+we will return to ABox models.
+
+\subsubsection{TBox Model 1: REAHM}\label{tbox-model-1-reahm}
+
+Given that both \texttt{pectoral fin} and \texttt{forelimb} are modeled
+as classes, we cannot make a direct logical homology relationship
+between these two, as they are not individuals in the domain of
+discourse. Such a statement would be syntactically invalid OWL.
+
+Instead, we do what is standard for ontologies are introduce an
+existential restriction axiom (see previous example for partOf). For
+example, it is syntactically valid to state:
+
+\begin{verbatim}
+Class: 'pectoral fin' SubClassOf: homologousTo some 'forelimb'
+\end{verbatim}
+
+Which is shorthand for ``every pectoral fin is homologous to some
+forelimb''
+
+\begin{verbatim}
+pectoral-fin ⊆ { x : ∃ y : y ∈ forelimb & homologousTo(x,y) }
+\end{verbatim}
+
+One crucial point of note here is that the above assertion does
+\emph{not} entail the reciprocal assertion, namely that every forelimb
+is homologous to some pectoral fin. This is despite the fact that the
+homology relation has the property of symmetry (symmetry only holds at
+the level of individuals).
+
+Therefore, as a matter of practice, each assertion should be accompanied
+by a reciprocal assertion. This rule cannot be stated in OWL (but it
+would be possible to have some kimd of meta-reasoning system on top,
+rather generates these). For example:
+
+\begin{verbatim}
+Class: 'pectoral fin' SubClassOf: homologousTo some 'forelimb'
+Class: 'forelimb' SubClassOf: homologousTo some 'pectoral fin'
+\end{verbatim}
+
+This practice lends itself to the name Reciprocal Existential Axiom
+Homology Model (REAHM).
+
+This model yields inferences that are sometimes too conservative
+(incomplete) and sometimes too liberal (too inclusive).
+
+As an example of the incompleteness problem, consider the ontology
+above, and the question: ``is a zebrafish pectoral fin homologous to a
+human limb?''. More formally, is the following OWL axiom entailed?
+
+\begin{verbatim}
+('pectoral fin' and partOf some 'Danio rerio')
+   SubClassOf homologousTo some
+('forelimb' and partOf some 'Homo sapiens') 
+\end{verbatim}
+
+The axiom would not be entailed under the above ontology, yet it is
+valid.
+
+As an example of inclusivity, consider the query ``what is homologous to
+some fin'' on the following ontology:
+
+\begin{verbatim}
+Class: 'pectoral fin' SubClassOf: homologousTo some 'forelimb'
+Class: 'forelimb' SubClassOf: homologousTo some 'pectoral fin'
+Class: 'pectoral fin' SubClassOf 'paired fin'
+Class: 'pelvic fin' SubClassOf 'paired fin'
+Class: 'forelimb' SubClassOf 'limb'
+Class: 'hindlimb' SubClassOf 'limb'
+\end{verbatim}
+
+The entailed answers would be:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  limb
+\item
+  forelimb
+\item
+  hindlimb
+\end{itemize}
+
+The answers include classes at a `different level' from limb; whether
+this is deemed too inclusive depends on the model in question.
+
+\subsubsection{TBox Model 2: D-REAHM}\label{tbox-model-2-d-reahm}
+
+A slight variant of this model is to make assertions only using the
+decendedFrom relation, and to infer homologousTo. For example:
+
+\begin{verbatim}
+Class: 'pectoral fin' SubClassOf: decendedFrom some 'pectoral-fin forelimb ancestor'
+Class: 'forelimb' SubClassOf: decendedFrom some 'pectoral-fin forelimb ancestor'
+\end{verbatim}
+
+We call this variant D-REAHM (with ``D'' standing for ``Decendant'').
+{[}call this DAHM?{]}
+
+We might naively expect that we could use these assertions to infer the
+horizontal homologousTo axioms, but this is not the case; we would need
+to add reciprocal axioms between ancestor and descendant in order to
+infer this. (see supplemental proofs).
+
+\subsubsection{TBox Model 3: VAHM}\label{tbox-model-3-vahm}
+
+This modifies the D-REAM model to use an individual as the ancestor
+
+\begin{verbatim}
+Class: 'pectoral fin' SubClassOf: decendedFrom value 'pectoral-fin forelimb ancestor'
+Class: 'forelimb' SubClassOf: decendedFrom value 'pectoral-fin forelimb ancestor'
+\end{verbatim}
+
+In contrast to DREAM, this states that the pectoral fin and forelimb
+share the \emph{same} ancestor.
+
+This model gives \emph{highly promiscuous} entailments. For example,
+given the ontology \texttt{minimal appendage}:
+
+\begin{verbatim}
+Class: 'paired fin' SubClassOf: decendedFrom value 'paired-fin/limb ancestor'
+Class: 'limb' SubClassOf: decendedFrom value 'paired-fin/limb ancestor'
+Class: 'pectoral fin' SubClassOf 'paired fin'
+Class: 'pelvic fin' SubClassOf 'paired fin'
+Class: 'forelimb' SubClassOf 'limb'
+Class: 'hindlimb' SubClassOf 'limb'
+\end{verbatim}
+
+If we are to ask the question ``what is homologous to the `pectoral
+fin'\,'', the answers would be:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  `pelvic fin'
+\item
+  `forelimb'
+\item
+  `hindlimb'
+\end{itemize}
+
+This is clearly more answers than is desired.
+
+\subsubsection{ABox Models}\label{abox-models}
+
+\subsection{}\label{section}
+
+\section{Discussion}\label{discussion}
+
+\section{Conclusions}\label{conclusions}
+
+\section{References}\label{references}

@@ -8,18 +8,20 @@ Homology was originally defined as "the same organ in different
 animals under every variety of form and function"\cite{Owen1843}. With
 the advent of molecular biology, the concept of homology came to cover
 the sequences of genes and proteins. Fitch introduced subtypes such as
-paralogy and orthology, and provided rules for calculating membership
-in these categories based relationships on gene and protein
-trees\cite{Fitch1970}. This formulation forms a crucial bedrock in the
-field of bioinformatics. In contrast, the application of the homology
-concept in its original usage in the study of anatomy has retained
-more of a philosophical flavor.
+paralogy and orthology, and provided precise rules for calculating
+membership in these categories based relationships on gene and protein
+trees\cite{Fitch1970}. This sequence-specific formulation of homology
+and the associated ortholog conjecture is crucial to genome
+biology. In contrast, the application of the homology concept in its
+original usage to the study of anatomy has retained more of a
+philosophical flavor, lacking a mathematical underpinning that is
+routinely applied in bioinformatics.
 
 Here we provide a formulation of anatomical homology that can be
 applied in modern bioinformatics information systems, used to answer
 questions about the relationships between genes, anatomical structures
 and their histories. Our formulation is expressed using the Web
-Ontology Language (OWL), so we first provide prelininary information
+Ontology Language (OWL), so we first provide preliminary information
 on this language.
 
 Our effort builds on and contrasts with previous efforts, such as the
@@ -32,24 +34,26 @@ Anatomy Ontology (VSAO)\cite{Dahdul}, both of which have been merged
 into the Uberon metazoan anatomy
 ontology\cite{Mungall2012},\cite{Haendel2014}.
 
+
+
 ## Ontologies and Computational Logic
 
 Ontologies are symbolic representations of some aspect of the world
-that can be used by both humans and by machines. Ontologies are
-commonly conceived of as semantic networks\cite{}, with nodes
-representing terms from the domain of discourse (for example, "limb",
-"bone", "skull" and so in anatomy) and the edges forming relationships
-that hold between the correspoding entities (for example, femur partOf
-hindlimb).
+that can serve as a communication layer between humans and by
+machines. Ontologies are commonly conceived of as semantic
+networks\cite{}, with nodes representing terms or concepts from the
+domain of discourse (for example, "limb", "bone", "skull" and so in
+anatomy) and the edges forming relationships that hold between the
+correspoding entities (for example, femur partOf hindlimb).
 
 There are a variety of languages used for expressing an ontology
 model, and these languages fall into different families, each with
-characteristics that have impacts on how the ontology is developed and
-applied. Three languages of note are Resource Description Framework
+characteristics that impact the development and usage of the
+ontology. Three languages of note are Resource Description Framework
 (RDF), the Web Ontology Language (OWL) and Common Logic (CL). Of these
-3, CL is the most expressive, covering all of First Order Logic (FOL)
-(with some aspects of second-order). Any RDF or OWL ontology can be
-represented in CL. Formally, OWL is a more expressive subset of RDF
+three, CL is the most expressive, covering all of First Order Logic
+(FOL) (with some aspects of second-order). Any RDF or OWL ontology can
+be represented in CL. Formally, OWL is a more expressive subset of RDF
 (every OWL ontology is an RDF ontology, but OWL defines constructs
 with greater expressive power).
 
@@ -66,37 +70,43 @@ When settling down to model some aspect of the world in OWL, it is
 necessary for the modeler to decide what to put in each of these
 boxes. The choice may be dictated by philosophical consideration, but
 pragmatic aspects dictated by mathematical-logical properties of these
-sets usually dominate. The most common approach (although by no means
-universal) is model "particulars" as individuals - this may include
-your friend `Joe` or his dog `Fido`. Joe may be related to Fido via
-the `owns` relation. Classes are essentially sets of individuals, so
-we may choose to include classes for `human` and for `dog`, with Joe
-and Fido instantiating these classes respectively. It is valid, if
-unusual, to model species or taxa as individuals. Note there is a
-longstanding question in the philosophy of biology concerning whether
-species are classes or individuals.
+categories tend to dominate. The most common approach (although by no
+means universal) is to reserve the category of individuals to
+particular things embodied in the world - this may include your friend
+`Joe` or his dog `Fido`. The 'relations' category would contain
+relations that hold between two individuals, such as `owns`, for
+example Joe may be related to Fido via the `owns` relation. Classes
+are in essence sets of individuals, so we may choose to include in our
+ontology classes for `human` and for `dog`, with Joe and Fido
+instantiating these classes respectively. It is valid, if atypical, to
+model species or taxa as individuals. Note there is a longstanding
+question in the philosophy of biology concerning whether species are
+classes or individuals\cite{VTO}.
 
 Crucially for our purposes here, the only relationships that can hold
 between classes are set-theoretic ones. For example, `human` and `dog`
 may both be subclasses of the class `mammal` (i.e. the set of humans
 is a subset of the set of mammals). `human` and `dog` may stand in a
-disjointness relationship (i.e. their set intersection is empty).
+disjointness relationship (i.e. their set intersection is
+empty). Relations such as `own` holds only between individuals (sets
+do not "own" other sets).
 
 A vertebrate anatomical ontology will typically include classes such
 as `digit`, `phalanx`, as well as more specific classes such as
 `phalanx of hand` or even `distal phalanx of digit 2 of left
-hand`. Within this model, these classes instantiated by particulars in
-the world; for example, Joe's left thumb, which instantiates the class
-`manual digit 1` as well as more general classes such as `digit` and
-more specific classes such as `human left manual digit 1`.
+hand`. Within this model, these classes are instantiated by
+particulars in the world; for example, Joe's left thumb, an individual
+which instantiates the class `manual digit 1` as well as more general
+classes such as `digit` and more specific classes such as `human left
+manual digit 1`.
 
 Ontologies are chiefly concerned with generalizations, such as the
 fact that digits are always part of the autopod (hand or foot). This
 can be done using the mereological partOf relation, but in OWL
 relations always hold between individuals, such as Joe's left manual
-digit 1 and Joe's left hand. There is no physical, mereological
-relation between the classes, which are abstractions over the
-individual elements. The actual relationship between the classes is a
+digit 1 and Joe's left hand. There is no *physical* relationship
+between the classes, as classes are abstractions over the individual
+elements. The actual relationship between the classes is a
 set-theoretic one, which can be stated in normal set-theoretic
 notation as:
 
@@ -112,7 +122,8 @@ Manchester Syntax\cite{Horridge} variant of OWL as:
 
     Class: digit SubClassOf: partOf some autopod
 
-A more compact (if abstruse) way of writing the same thing is in DL notation:
+A more compact (if abstruse) way of writing the same thing is in DL
+(Description Logic) notation:
 
     digit ⊆  ∃partOf.autopod
 
@@ -131,7 +142,7 @@ relationship, at the core of this paper.
 ### Uberon
 
 Uberon contains classes for anatomical structures found in a variety
-of animals, with an emphasis towards vertebrates. Classes in Uberon
+of animals, with an emphasis on vertebrates. Classes in Uberon
 represent groupings of structures; for example, the class `limb`
 groups all tetrapod limbs, and the class `mammary gland` groups all
 mammary glands (which are exclusive to mammals).
@@ -140,11 +151,12 @@ In the past we have characterized Uberon as "homology neutral". By
 this we mean that there is no *guarantee* that the existence of a
 class in Uberon means that the class represents a group of homologous
 structures; it does not mean that homology is explicitly avoided as a
-grouping criteria. Homology is handled separately, in datafiles
-provided by groups such as Phenoscape and BgeeDb. In practice, a
-strict separation is difficult, and often it is impossible to avoid
-homology - for example, the definition of "manual digit 3" is
-essentially homological.
+criteria for defining or making classes. Homology assertions are
+handled outside the ontology, in datafiles provided by groups such as
+Phenoscape and BgeeDb. In practice, a strict separation is difficult,
+and often it is impossible to avoid homology in the construction of an
+ontology - for example, the definition of "manual digit 3" in Uberon
+is essentially homological.
 
 # Results
 
@@ -179,7 +191,7 @@ compatible with the Fitchean formulation of sequence homology.
 
 We first introduce a relation `descendedFrom`, which captures the
 phylogenetic lineage between an entity and its antecedent. At this
-stage we leave open the question of what kind of thing this relation
+stage we defer the question of what kind of thing this relation
 connects, i.e. we do not yet commit to an information flow
 model\cite{Van Valen} vs connecting physical structures.
 
@@ -344,11 +356,45 @@ If we are to ask the question "what is homologous to the 'pectoral fin'", the an
 
 This is clearly more answers than is desired.
 
-### ABox Models
+### ABox Model: OPAHM
 
-##
+This model breaks with traditional practice of representing homologous
+elements as classes, and instead uses individuals. We call this model
+Object Property Assertion Homology Model (OPAHM) since we use OWL
+Object Property Assertions for the homology associations.
+
+    Individual: 'pectoral fin' Facts: homologousTo 'forelimb'
+
+DOPAHM:
+
+    Individual: 'pectoral fin' Facts: decendedFrom 'pectoral-fin forelimb ancestor'
+    Individual: 'forelimb' Facts: decendedFrom 'pectoral-fin forelimb ancestor'
+
+
+
+Note similarity to VBO...
+
+One practical consideration is how to integrate this model with
+existing ontologies that model anatomical units as classes (TBox
+ontology). In OWL2 it is valid to use the same identifying token to
+denote a class and an instance; thus OPAHM is compatible with a TBox
+ontology
+
+## Evaluation of models against CQs
+
+[integrate this into description of models?]
+
+Table: summary of models plus CQ results
+
+## Additional Reasoning
+
+### Horizontal Inference
+
+ * skeleton_of
 
 # Discussion
+
+## Limitations of set-theoretic models
 
 # Conclusions
 
